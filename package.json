@@ -1,0 +1,25 @@
+{
+  "name": "clovermon-showdown-replays",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "copy-templates": "copyfiles -u 1 src/**/*.hbs dist/",
+    "build": "tsc && npm run copy-templates"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/koa": "^2.13.6",
+    "@types/koa-router": "^7.4.4",
+    "copyfiles": "^2.4.1",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "handlebars": "^4.7.7",
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
+    "koa-router": "^12.0.0"
+  }
+}
