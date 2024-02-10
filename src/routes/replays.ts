@@ -1,4 +1,5 @@
 import Axios from 'axios';
+import Koa from 'koa';
 import Router from 'koa-router';
 import { renderReplayTemplate } from '../templates';
 
@@ -17,6 +18,35 @@ const getReplay = async (id: string, password?: string) => {
   return undefined;
 };
 
+interface SearchParameters {
+  page?: number;
+  rating?: boolean;
+  format?: string;
+  username?: string;
+  username2?: string;
+}
+
+const searchReplays = async (parameters: SearchParameters) => {
+  try {
+    console.log(parameters);
+    const {data} = await Axios.post(
+      'https://clover.weedl.es/~~clodown/api/searchreplays',
+      parameters,
+      { responseType: 'text' },
+    );
+
+    console.log(data);
+  
+    if (data.startsWith(']')) {
+      return JSON.parse(data.substring(1)).replays;
+    }
+  } catch(e) {
+    console.log(e);
+  }
+
+  return [];
+};
+
 const parseReplayId = (id: string) => {
   let currentId = id;
 
@@ -31,8 +61,50 @@ const parseReplayId = (id: string) => {
   return [currentId];
 };
 
+const fromArray = <T>(value: T | T[]): T => {
+  if (Array.isArray(value)) return value[0];
+  return value;
+};
+
+const searchParametersFromQuery = (ctx: Koa.ParameterizedContext): SearchParameters => {
+  const searchParameters: SearchParameters = {};
+
+  if (ctx.query.page) {
+    searchParameters.page = parseInt(fromArray(ctx.query.page) || '0') || 0;
+  }
+
+  if (ctx.query.rating) {
+    searchParameters.rating = fromArray(ctx.query.rating) !== undefined;
+  }
+
+  if (ctx.query.format) {
+    searchParameters.format = fromArray(ctx.query.format);
+  }
+
+  if (ctx.query.username) {
+    searchParameters.username = fromArray(ctx.query.username);
+  }
+
+  if (ctx.query.username2) {
+    searchParameters.username2 = fromArray(ctx.query.username2);
+  }
+
+  console.log(searchParameters);
+
+  return searchParameters;
+};
+
 const createReplaysRouter = () => {
   const router = new Router();
+
+  router.get('/search.json', async (ctx) => {
+    const params = searchParametersFromQuery(ctx);
+    const replays = await searchReplays(params);
+
+    ctx.status = 200;
+    ctx.type = 'application/json';
+    ctx.body = JSON.stringify(replays);
+  });
 
   router.get('/:replayId.json', async (ctx) => {
     if (!ctx.params.replayId) {
