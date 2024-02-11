@@ -11,6 +11,10 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Tooltip from '@mui/material/Tooltip';
+import SortIcon from '@mui/icons-material/Sort';
 
 const searchDelay = 200;
 const toID = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -43,6 +47,7 @@ export function App() {
   const [username2, setUsername2] = useState('');
   const [replays, setReplays] = useState<Replay[]>([]);
   const [searchTimeout, setSearchTimeout] = useState<number>(-1);
+  const [order, setOrder] = useState<'DESC' | 'ASC'>('DESC');
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
@@ -65,7 +70,7 @@ export function App() {
     setHasMore(true);
     setReplays([]);
     clearTimeout(searchTimeout);
-  }, [format, username1, username2]);
+  }, [order, format, username1, username2]);
 
   useEffect(() => {
     setHasMore(true);
@@ -74,10 +79,11 @@ export function App() {
     setSearchTimeout(window.setTimeout(() => {
       setIsLoading(true);
       searchReplays({
-        page: page,
+        page,
         format: toID(format),
         username: toID(username1),
         username2: toID(username2),
+        order,
       }).then((replays) => {
         setIsLoading(false);
         if (replays.length) {
@@ -94,14 +100,28 @@ export function App() {
       <Container maxWidth='lg'>
         <Paper elevation={3} sx={{ p: 1 }}>
           <Grid container direction='row' spacing={1} sx={{ p: 1 }}>
-            <Grid item xs={4}>
+            <Grid item xs={5}>
               <TextField fullWidth label={'Format'} value={format} onChange={(event) => setFormat(event.currentTarget.value)} />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField fullWidth label={'Player 1'} value={username1} onChange={(event) => setUsername1(event.currentTarget.value)} />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField fullWidth label={'Player 2'} value={username2} onChange={(event) => setUsername2(event.currentTarget.value)} />
+            </Grid>
+            <Grid item xs={1}>
+              <ToggleButtonGroup>
+                <Tooltip title="Sort Descending">
+                  <ToggleButton selected={order === 'DESC'} value='DESC' onClick={() => setOrder('DESC')}>
+                    <SortIcon />
+                  </ToggleButton>
+                </Tooltip>
+                <Tooltip title="Sort Ascending">
+                  <ToggleButton selected={order === 'ASC'} value='ASC' onClick={() => setOrder('ASC')}>
+                    <SortIcon sx={{ transform: 'scaleY(-1)' }}/>
+                  </ToggleButton>
+                </Tooltip>
+              </ToggleButtonGroup>
             </Grid>
           </Grid>
           <List dense={true}>

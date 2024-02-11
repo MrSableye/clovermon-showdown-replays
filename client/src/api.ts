@@ -4,6 +4,7 @@ interface SearchReplaysParameters {
   format?: string;
   username?: string;
   username2?: string;
+  order?: string;
 }
 
 export interface Replay {

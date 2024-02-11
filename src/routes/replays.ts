@@ -24,6 +24,7 @@ interface SearchParameters {
   format?: string;
   username?: string;
   username2?: string;
+  order?: string;
 }
 
 const searchReplays = async (parameters: SearchParameters) => {
@@ -87,6 +88,10 @@ const searchParametersFromQuery = (ctx: Koa.ParameterizedContext): SearchParamet
 
   if (ctx.query.username2) {
     searchParameters.username2 = fromArray(ctx.query.username2);
+  }
+
+  if (ctx.query.order) {
+    searchParameters.order = fromArray(ctx.query.order);
   }
 
   console.log(searchParameters);
